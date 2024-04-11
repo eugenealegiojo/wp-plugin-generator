@@ -19,4 +19,4 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 require_once __DIR__ . '/vendor/autoload.php';
 
-\Plugin::instance();
+\{plugin_namespace}\Plugin::instance();

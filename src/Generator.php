@@ -19,15 +19,15 @@ class Generator {
     public static function generatePluginFiles($pluginName, $authorName, $version, $description, $textDomain, $pluginURI = '', $authorURI = '', $license = 'GPL', $pluginNamespace = '') {
         // Read template file
         $template = file_get_contents(__DIR__ . '/../templates/PluginFiles.php.template');
+        
+        self::$_namespace = $pluginNamespace !== '' ? $pluginNamespace : self::toPascalCase( $pluginName );
 
         // Replace placeholders with provided values
         $template = str_replace(
-            ['{plugin_name}', '{plugin_uri}', '{description}', '{plugin_version}', '{author_name}', '{author_uri}', '{plugin_license}', '{text_domain}'],
-            [$pluginName, $pluginURI, $description, $version, $authorName, $authorURI, $license, $textDomain],
+            ['{plugin_name}', '{plugin_uri}', '{description}', '{plugin_version}', '{author_name}', '{author_uri}', '{plugin_license}', '{text_domain}', '{plugin_namespace}'],
+            [$pluginName, $pluginURI, $description, $version, $authorName, $authorURI, $license, $textDomain, self::$_namespace],
             $template
-        );
-
-        self::$_namespace = $pluginNamespace !== '' ? $pluginNamespace : self::toPascalCase( $pluginName );
+        );        
         
         // Generate main plugin filename
         $main_plugin_file = self::toKebabCase( $pluginName );
