@@ -1,0 +1,25 @@
+{
+	"name": "eugenealegiojo/wp-plugin-generator",
+	"description": "A WordPress plugin boilerplate generator.",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Your Name",
+			"email": "your@email.com"
+		}
+	],
+	"require": {
+		"php": "^7.4"
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"php wp-plugin-generator.php"
+		]
+	},
+	"autoload": {
+		"psr-4": {
+			"EA\\WPPLuginGenerator\\": "src/"
+		}
+	}
+}

@@ -1,0 +1,22 @@
+<?php
+/**
+ * Plugin Name: {plugin_name}
+ * Plugin URI: {plugin_uri}
+ * Description: {description}
+ * Version: {plugin_version}
+ * Author: {author_name}
+ * Author URI: {author_uri}
+ * License: {plugin_license}
+ * Text Domain: {text_domain}
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+/**
+ * Composer class autoloader
+ */
+require_once __DIR__ . '/vendor/autoload.php';
+
+\Plugin::instance();

@@ -1,0 +1,120 @@
+<?php
+
+namespace {plugin_namespace};
+
+/**
+ * Main plugin class.
+ *
+ * @since {plugin_version}
+ */
+final class Plugin {
+
+	/**
+	 * Minimum PHP Version
+	 *
+	 * @since {plugin_version}
+	 */
+	private const MINIMUM_PHP_VERSION = '7.4';
+
+	/**
+	 * Class instance
+	 *
+	 * @since {plugin_version}
+	 */
+	private static $_instance = null;
+
+	/**
+	 * Instance
+	 *
+	 * Ensures only one instance of the class is loaded or can be loaded.
+	 *
+	 * @since {plugin_version}
+	 */
+	public static function instance() {
+
+		if ( is_null( self::$_instance ) ) {
+			self::$_instance = new self();
+		}
+
+		return self::$_instance;
+	}
+
+	public function __construct() {
+		if ( $this->is_compatible() ) {
+			$this->define_constants();
+
+            register_activation_hook( {const_prefix}_FILE, [ $this, 'activate' ] );
+		    register_deactivation_hook( {const_prefix}_FILE, [ $this, 'deactivate' ] );
+	
+			add_action( 'plugins_loaded', [ $this, 'load' ] );
+		}
+	}
+
+    /**
+     * Define plugin constants.
+     *
+     * @since {plugin_version}
+     */
+	public function define_constants() {
+		define( '{const_prefix}_FILE', trailingslashit( dirname( __DIR__, 1 ) ) . '{plugin_filename}.php' );
+		define( '{const_prefix}_DIR', trailingslashit( plugin_dir_path( {const_prefix}_FILE ) ) );
+		define( '{const_prefix}_URL', trailingslashit( plugin_dir_url( __DIR__ ) ) );
+		define( '{const_prefix}_ASSETS_URL', {const_prefix}_URL . 'assets' );
+		define( '{const_prefix}_BUILD_DIR', {const_prefix}_DIR . 'build' );
+		define( '{const_prefix}_BUILD_URL', {const_prefix}_URL . 'build' );
+		define( '{const_prefix}_VERSION', '{plugin_version}' );
+	}
+
+    /**
+     * Load the plugin core files/classes/hooks.
+     */
+    public fuction load(){
+
+    }
+
+	/**
+	 * Compatibility checks.
+	 *
+	 * @since {plugin_version}
+	 */
+	public function is_compatible() {
+
+		// Check for required PHP version
+		if ( version_compare( PHP_VERSION, self::MINIMUM_PHP_VERSION, '<' ) ) {
+			add_action( 'admin_notices', [ $this, 'admin_notice_minimum_php_version' ] );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Admin notice on a minimum required PHP version.
+	 *
+	 * @since {plugin_version}
+	 */
+	public function admin_notice_minimum_php_version() {
+
+		if ( isset( $_GET['activate'] ) ) {
+			unset( $_GET['activate'] );
+		}
+
+		$message = sprintf(
+			/* translators: 1: Plugin name 2: PHP 3: Required PHP version */
+			esc_html__( '"%1$s" requires "%2$s" version %3$s or greater.', '{text_domain}' ),
+			'<strong>' . esc_html__( '{plugin_name}', '{text_domain}' ) . '</strong>',
+			'<strong>' . esc_html__( 'PHP', '{text_domain}' ) . '</strong>',
+			self::MINIMUM_PHP_VERSION
+		);
+
+		printf( '<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message );
+	}
+
+    public function activate(){
+        // Do something during activation.
+    }
+
+    public function deactivate(){
+        // Do something during deactivation.
+    }
+}
