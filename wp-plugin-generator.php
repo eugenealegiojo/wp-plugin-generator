@@ -8,7 +8,7 @@ function promptInput($message, $defaultValue = '') {
     do {
         $input = readline($message . ($defaultValue ? " [$defaultValue]: " : ': '));
         $input = trim($input);
-        if ($input === '' && $defaultValue !== '') {
+        if ($input === '') {
             return $defaultValue;
         }
     } while ($input === '');
