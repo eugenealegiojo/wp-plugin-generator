@@ -68,7 +68,7 @@ final class Plugin {
     /**
      * Load the plugin core files/classes/hooks.
      */
-    public fuction load(){
+    public function load(){
 
     }
 
