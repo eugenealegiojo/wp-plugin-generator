@@ -17,10 +17,12 @@ class Generator {
     private static $_srcPath = 'src/';
     
     public static function generatePluginFiles($pluginName, $authorName, $version, $description, $textDomain, $pluginURI = '', $authorURI = '', $license = 'GPL', $pluginNamespace = '') {
-       
+        
+        // Setup namespace in composer.json
+        self::generateComposerJSON($pluginName, $pluginNamespace);
+
         // Read template file
         $template = file_get_contents( dirname(__DIR__) . '/templates/MainPlugin.php.template');
-        self::$_namespace = $pluginNamespace !== '' ? $pluginNamespace : self::toPascalCase( $pluginName );
 
         $sep = DIRECTORY_SEPARATOR;
         $rootFolderPath = realpath(__DIR__ . $sep . '..' . $sep . '..' . $sep . '..' . $sep .'..');
@@ -42,9 +44,6 @@ class Generator {
         // Generate main plugin filename
         file_put_contents( $mainFilePath, $template );
 
-        // Composer.json
-        // self::generateComposerJSON($pluginName);
-
         // Main class file
         self::generateMainPluginClass($pluginName, $version, $textDomain);
     }
@@ -60,7 +59,7 @@ class Generator {
         $sep = DIRECTORY_SEPARATOR;
         $rootFolderPath = realpath(__DIR__ . $sep . '..' . $sep . '..' . $sep . '..' . $sep .'..');
         $main_plugin_file = self::toKebabCase( basename($rootFolderPath) );
-        $mainClassFilePath = $rootFolderPath . $sep . 'src' . $sep . 'Plugin.php';
+        $mainClassFilePath = $rootFolderPath . $sep . self::$_srcPath . 'Plugin.php';
 
         $template = str_replace(
             ['{plugin_name}', '{plugin_version}', '{plugin_namespace}', '{const_prefix}', '{text_domain}', '{plugin_filename}'], 
@@ -76,31 +75,34 @@ class Generator {
         file_put_contents( $mainClassFilePath, $template );
     }
 
-    private static function generateComposerJSON(){
+    private static function generateComposerJSON( $pluginName, $pluginNamespace ){
 
-        $composerJsonPath = dirname(__DIR__) . '/composer.json';
+        // Initialize the namespace
+        self::$_namespace = $pluginNamespace !== '' ? $pluginNamespace : self::toPascalCase( $pluginName );
+
+        $sep = DIRECTORY_SEPARATOR;
+        $rootFolderPath = realpath(__DIR__ . $sep . '..' . $sep . '..' . $sep . '..' . $sep .'..');
+        $composerJsonPath = $rootFolderPath . $sep . 'composer.json';
         $composerJson = json_decode(file_get_contents($composerJsonPath), true);
 
-      
-
         if ( isset( $composerJson['autoload']['psr-4'] ) ) {
-            // $existingNamespace = array_pop($composerJson['autoload']['psr-4']);
-            // if( $existingNamespace ) {
-            //     self::$_namespace = $existingNamespace;
-            // }
-
-            // if ( isset( $composerJson['autoload']['psr-4'][ self::$_namespace ] ) ) {
-            //     self::$_srcPath = $composerJson['autoload']['psr-4'][ self::$_namespace ];
-            // }
+            $namespace = array_keys($composerJson['autoload']['psr-4']);
+            self::$_namespace = rtrim($namespace[0], "\\");
+           
+            if ( isset( $composerJson['autoload']['psr-4'][ self::$_namespace ] ) ) {
+                self::$_srcPath = $composerJson['autoload']['psr-4'][ self::$_namespace ];
+            }
             
-            // $autoloadConfig = array_keys($composerJson['autoload']['psr-4']);
+            echo "Namespace \"{$pluginNamespace}\" has been ignored. Namespace already defined in composer.json." . PHP_EOL;
 
         } else {
+
+            echo "Adding autload config in composer.json...\n";
 
             // Autoload config
             $autoloadConfig = [
                 'psr-4' => [
-                    self::$_namespace . '\\' => self::$_srcPath
+                    rtrim(self::$_namespace, '\\') . '\\' => self::$_srcPath
                 ]
             ];
             
