@@ -17,11 +17,15 @@ class Generator {
     private static $_srcPath = 'src/';
     
     public static function generatePluginFiles($pluginName, $authorName, $version, $description, $textDomain, $pluginURI = '', $authorURI = '', $license = 'GPL', $pluginNamespace = '') {
+       
         // Read template file
         $template = file_get_contents( dirname(__DIR__) . '/templates/MainPlugin.php.template');
         self::$_namespace = $pluginNamespace !== '' ? $pluginNamespace : self::toPascalCase( $pluginName );
-        $main_plugin_file = self::toKebabCase( $pluginName );
-        $mainFilePath = dirname(__DIR__) . '/' . $main_plugin_file . '/' . $main_plugin_file . '.php';
+
+        $sep = DIRECTORY_SEPARATOR;
+        $rootFolderPath = realpath(__DIR__ . $sep . '..' . $sep . '..' . $sep . '..' . $sep .'..');
+        $main_plugin_file = self::toKebabCase( basename($rootFolderPath) );
+        $mainFilePath = $rootFolderPath . $sep . $main_plugin_file . '.php';
 
         // Replace placeholders with provided values
         $template = str_replace(
@@ -30,13 +34,6 @@ class Generator {
             $template
         );
         
-        // Ensure the directory exists, create it if it doesn't
-        // if ( !file_exists( $mainFilePath ) &&  !mkdir( $mainFilePath, 0777, true ) ) {
-        //     die('Failed to create file: ' . $mainFilePath .' \n');
-        // } else {
-        //     echo 'Successfully created: ' . $mainFilePath . ' \n';
-        // }
-
         // Ensure the directory exists, create it if it doesn't
         if (!file_exists(dirname($mainFilePath)) && !mkdir(dirname($mainFilePath), 0777, true)) {
             die('Failed to create directory: ' . dirname($mainFilePath) . PHP_EOL);
@@ -59,26 +56,17 @@ class Generator {
 
         $pluginTextDomain = $textDomain !== '' ? $textDomain : self::toKebabCase( $pluginName );
         $constPrefix = self::toUpperSnakeCase( $pluginName );
-        $main_plugin_file = self::toKebabCase( $pluginName );
-        $mainClassFilePath = dirname(__DIR__) . '/' . $main_plugin_file . '/src/Plugin.php';
+
+        $sep = DIRECTORY_SEPARATOR;
+        $rootFolderPath = realpath(__DIR__ . $sep . '..' . $sep . '..' . $sep . '..' . $sep .'..');
+        $main_plugin_file = self::toKebabCase( basename($rootFolderPath) );
+        $mainClassFilePath = $rootFolderPath . $sep . 'src' . $sep . 'Plugin.php';
 
         $template = str_replace(
             ['{plugin_name}', '{plugin_version}', '{plugin_namespace}', '{const_prefix}', '{text_domain}', '{plugin_filename}'], 
             [$pluginName, $version, self::$_namespace, $constPrefix, $pluginTextDomain, $main_plugin_file], 
             $template 
         );
-
-        // Ensure the directory exists, create it if it doesn't
-        // if ( !file_exists( dirname($mainClassFilePath) ) ) {
-        //     mkdir( dirname( $mainClassFilePath ), 0777, true );
-        // }
-
-        // Ensure the directory exists, create it if it doesn't
-        // if ( !is_dir( dirname(__DIR__) .'/'. $main_plugin_file) && !mkdir( $mainClassFilePath, 0777, true ) ) {
-        //     die('Failed to create directory: ' . $mainClassFilePath);
-        // } else {
-        //     echo 'Path: ' . $mainClassFilePath . ' has been generated.\n';
-        // }
 
         // Ensure the directory exists, create it if it doesn't
         if (!file_exists(dirname($mainClassFilePath)) && !mkdir(dirname($mainClassFilePath), 0777, true)) {
